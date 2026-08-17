@@ -6,7 +6,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin","cyri
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin","cyrillic"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://serviceflow.openai.site"),
+  metadataBase: new URL("https://serviceflow-crm.atumovichatuma.chatgpt.site"),
   title: "ServiceFlow — CRM для сервисного центра",
   description: "Заявки, мастера, клиенты и автоматизации в едином рабочем потоке.",
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Activity, ArrowRight, Bell, Bot, CalendarClock, Check, ChevronDown,
   CircleDollarSign, Command, FileText, Filter, Gauge, LayoutDashboard,
@@ -24,6 +25,7 @@ const stages: Stage[] = ["Новые","Диагностика","Согласов
 const money = (v:number) => v ? new Intl.NumberFormat("ru-RU").format(v) + " сум" : "Оценка";
 
 export default function Home() {
+  const router = useRouter();
   const [view,setView] = useState("Дашборд");
   const [orders,setOrders] = useState(initialOrders);
   const [search,setSearch] = useState("");
@@ -61,7 +63,7 @@ export default function Home() {
       <nav className={mobileNav ? "nav open" : "nav"}>
         <a href="#platform">Платформа</a><a href="#workflow">Процессы</a><a href="#product">Интерфейс</a><a href="#contact">Контакты</a>
       </nav>
-      <div className="header-actions"><button className="ghost-button" onClick={jumpToApp}>Войти</button><button className="primary-button small" onClick={()=>setNewOrder(true)}>Попробовать <ArrowRight size={15}/></button></div>
+      <div className="header-actions"><button className="ghost-button" onClick={()=>router.push("/login")}>Войти</button><button className="primary-button small" onClick={()=>router.push("/register")}>Попробовать <ArrowRight size={15}/></button></div>
       <button className="menu-button" aria-label="Меню" onClick={()=>setMobileNav(!mobileNav)}>{mobileNav?<X/>:<Menu/>}</button>
     </header>
 
@@ -70,7 +72,7 @@ export default function Home() {
         <div className="eyebrow"><span className="live-dot"/> Сервис под контролем. В реальном времени.</div>
         <h1>Каждый ремонт.<br/><span>В одном потоке.</span></h1>
         <p>Заявки, мастера, клиенты и уведомления — в CRM, которая показывает работу сервиса как она есть: ясно, быстро и без потерянных деталей.</p>
-        <div className="hero-actions"><button className="primary-button" onClick={jumpToApp}>Открыть живое демо <ArrowRight size={17}/></button><button className="secondary-button" onClick={()=>setNewOrder(true)}><Plus size={17}/> Создать заявку</button></div>
+        <div className="hero-actions"><button className="primary-button" onClick={jumpToApp}>Открыть живое демо <ArrowRight size={17}/></button><button className="secondary-button" onClick={()=>router.push("/register")}><Plus size={17}/> Создать заявку</button></div>
         <div className="proof-row"><span><Check/> Настройка за 1 день</span><span><Check/> Без карты</span><span><Check/> Данные готовы к Supabase</span></div>
       </div>
       <div className="hero-console" aria-label="Сводка работы сервиса">
@@ -123,7 +125,7 @@ export default function Home() {
       <article className="automation-rail feature-panel"><div><span className="technical magenta">{"// АВТОМАТИЗАЦИИ"}</span><h3>Система двигает процесс, пока команда ремонтирует.</h3></div><div className="automation-flow"><span><Zap/> Статус изменён</span><ArrowRight/><span><MessageSquareText/> Клиент уведомлён</span><ArrowRight/><span><Check/> Доставка подтверждена</span></div></article>
     </section>
 
-    <section className="cta" id="contact"><div><span className="technical cyan">{"// READY TO FLOW"}</span><h2>Сервис без слепых зон.</h2><p>Посмотрите, как ServiceFlow соберёт вашу команду, заказы и клиентов в единую рабочую систему.</p></div><button className="primary-button" onClick={()=>setNewOrder(true)}>Создать первую заявку <ArrowRight size={17}/></button></section>
+    <section className="cta" id="contact"><div><span className="technical cyan">{"// READY TO FLOW"}</span><h2>Сервис без слепых зон.</h2><p>Посмотрите, как ServiceFlow соберёт вашу команду, заказы и клиентов в единую рабочую систему.</p></div><button className="primary-button" onClick={()=>router.push("/register")}>Создать первую заявку <ArrowRight size={17}/></button></section>
     <footer><a className="brand" href="#top"><span className="brand-mark"><Command size={17}/></span>ServiceFlow</a><span>CRM для сервисных команд</span><span className="mono">© 2026 / BUILD 1.0.4</span></footer>
 
     {selected && <OrderDrawer order={selected} onClose={()=>setSelected(null)} notify={notify}/>} 
