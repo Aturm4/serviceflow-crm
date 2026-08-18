@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { AuthLayout } from "@/components/auth-layout";
@@ -8,8 +7,8 @@ import { authService } from "@/lib/auth";
 import { crmData } from "@/lib/crm-data";
 
 export default function RegisterPage(){
-  const router=useRouter(); const [show,setShow]=useState(false); const [loading,setLoading]=useState(false); const [error,setError]=useState("");const submitting=useRef(false);
-  useEffect(()=>{if(authService.getSession()) router.replace("/dashboard")},[router]);
+  const [show,setShow]=useState(false); const [loading,setLoading]=useState(false); const [error,setError]=useState("");const submitting=useRef(false);
+  useEffect(()=>{if(authService.getSession()) window.location.replace("/dashboard")},[]);
   async function submit(event:React.FormEvent<HTMLFormElement>){
     event.preventDefault();if(submitting.current)return; setError(""); const data=new FormData(event.currentTarget);
     const name=String(data.get("name")||"").trim(),company=String(data.get("company")||"").trim(),email=String(data.get("email")||"").trim(),password=String(data.get("password")||""),confirm=String(data.get("confirm")||"");
@@ -19,7 +18,7 @@ export default function RegisterPage(){
     if(password!==confirm) return setError("Пароли не совпадают");
     if(!data.get("terms")) return setError("Необходимо принять условия использования");
     submitting.current=true;setLoading(true);
-    try{await authService.register({name,company,email,password});crmData.seed();router.replace("/dashboard");}
+    try{await authService.register({name,company,email,password});crmData.seed();window.location.replace("/dashboard");}
     catch(reason){setError(reason instanceof Error?reason.message:"Не удалось создать аккаунт");submitting.current=false;setLoading(false)}
   }
   return <AuthLayout eyebrow="CREATE WORKSPACE" title="Создайте аккаунт" description="CRM будет готова к работе сразу после регистрации.">

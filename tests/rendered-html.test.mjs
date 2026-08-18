@@ -51,12 +51,11 @@ test("keeps auth, persistence, protection and CRUD logic isolated", async () => 
   assert.match(auth, /sessionStorage/);
   assert.match(data, /saveOrders/);
   assert.match(data, /saveCustomers/);
-  assert.match(shell, /router\.replace\(`\/login/);
+  assert.match(shell, /window\.location\.replace\(`\/login/);
   assert.match(shell, /authService\.logout/);
   assert.match(orders, /onDragStart/);
   assert.match(orders, /onPointerUp/);
   assert.match(orders, /Удалить заказ/);
   assert.match(customers, /Создать клиента/);
-  assert.match(landing, /router\.push\("\/register"\)/);
+  assert.match(landing, /window\.location\.assign\("\/register"\)/);
 });
-

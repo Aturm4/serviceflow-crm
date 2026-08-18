@@ -1,7 +1,7 @@
 "use client";
-/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/set-state-in-effect, @next/next/no-html-link-for-pages */
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Activity, BarChart3, Bell, ChevronDown, Command, Gauge, LayoutDashboard, LogOut, Menu, Settings2, Users, Wrench, X } from "lucide-react";
 import { authService, ServiceFlowUser } from "@/lib/auth";
@@ -17,15 +17,15 @@ const nav = [
 ] as const;
 
 export function CrmShell({title,eyebrow,actions,children}:{title:string;eyebrow:string;actions?:React.ReactNode;children:React.ReactNode}) {
-  const router=useRouter(); const pathname=usePathname();
+  const pathname=usePathname();
   const [user,setUser]=useState<ServiceFlowUser|null>(null); const [ready,setReady]=useState(false); const [mobile,setMobile]=useState(false);const [notifications,setNotifications]=useState(false);
   useEffect(()=>{
     const session=authService.getSession();
-    if(!session){ router.replace(`/login?next=${encodeURIComponent(pathname)}`); return; }
+    if(!session){ window.location.replace(`/login?next=${encodeURIComponent(pathname)}`); return; }
     crmData.seed(); setUser(session); setReady(true);
-    return authService.subscribe(()=>{ const next=authService.getSession(); if(!next) router.replace("/login"); else setUser(next); });
-  },[pathname,router]);
-  function logout(){ authService.logout(); router.replace("/login"); }
+    return authService.subscribe(()=>{ const next=authService.getSession(); if(!next) window.location.replace("/login"); else setUser(next); });
+  },[pathname]);
+  function logout(){ authService.logout(); window.location.replace("/login"); }
   if(!ready||!user) return <div className="crm-loading"><span className="brand-mark"><Command/></span><span>Загружаем рабочее пространство…</span></div>;
   const initials=user.name.split(" ").map(part=>part[0]).slice(0,2).join("").toUpperCase();
   return <main className="crm-page">
