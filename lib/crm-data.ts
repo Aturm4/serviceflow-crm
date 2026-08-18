@@ -12,12 +12,16 @@ export type EmployeeRecord = {
   capacity: number; completed: number; avgDays: number;
 };
 export type EventRecord = { id: string; time: string; title: string; detail: string; tone: "cyan" | "green" | "orange" | "magenta" };
+export type WorkspaceSettings = { company:string; email:string; phone:string; timezone:string; address:string; sms:boolean; overdueReminders:boolean };
+
+import { authService } from "@/lib/auth";
 
 const ORDERS_KEY = "serviceflow:crm:orders:v1";
 const CUSTOMERS_KEY = "serviceflow:crm:customers:v1";
 const EMPLOYEES_KEY = "serviceflow:crm:employees:v1";
 const EVENTS_KEY = "serviceflow:crm:events:v1";
 const DATA_EVENT = "serviceflow:data-change";
+const SETTINGS_KEY = "serviceflow:crm:settings:v1";
 
 const employees: EmployeeRecord[] = [
   { id:"emp-1", name:"Алексей Морозов", specialty:"Ноутбуки · Консоли", status:"Работает", capacity:82, completed:146, avgDays:2.4 },
@@ -52,11 +56,12 @@ const events: EventRecord[] = [
   {id:"ev-4",time:"17:18",title:"SF-1048 создан",detail:"Источник: онлайн-форма",tone:"orange"},
 ];
 
+function scoped(key:string){const userId=authService.getSession()?.id;return userId?`${key}:${userId}`:`${key}:anonymous`}
 function read<T>(key:string, fallback:T):T {
   if (typeof window === "undefined") return fallback;
-  try { const raw=localStorage.getItem(key); return raw ? JSON.parse(raw) as T : fallback; } catch { return fallback; }
+  try { const raw=localStorage.getItem(scoped(key)); const value=raw?JSON.parse(raw):fallback; return (Array.isArray(fallback)&&!Array.isArray(value))?fallback:value as T; } catch { return fallback; }
 }
-function write<T>(key:string,value:T){ localStorage.setItem(key,JSON.stringify(value)); window.dispatchEvent(new Event(DATA_EVENT)); }
+function write<T>(key:string,value:T){ localStorage.setItem(scoped(key),JSON.stringify(value)); window.dispatchEvent(new Event(DATA_EVENT)); }
 function emitEvent(title:string,detail:string,tone:EventRecord["tone"]="cyan") {
   const list=crmData.getEvents();
   const time=new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
@@ -64,7 +69,7 @@ function emitEvent(title:string,detail:string,tone:EventRecord["tone"]="cyan") {
 }
 
 export const crmData = {
-  seed(){ if(typeof window==="undefined") return; if(!localStorage.getItem(ORDERS_KEY)) write(ORDERS_KEY,orders); if(!localStorage.getItem(CUSTOMERS_KEY)) write(CUSTOMERS_KEY,customers); if(!localStorage.getItem(EMPLOYEES_KEY)) write(EMPLOYEES_KEY,employees); if(!localStorage.getItem(EVENTS_KEY)) write(EVENTS_KEY,events); },
+  seed(){ if(typeof window==="undefined") return; if(!localStorage.getItem(scoped(ORDERS_KEY))) write(ORDERS_KEY,orders); if(!localStorage.getItem(scoped(CUSTOMERS_KEY))) write(CUSTOMERS_KEY,customers); if(!localStorage.getItem(scoped(EMPLOYEES_KEY))) write(EMPLOYEES_KEY,employees); if(!localStorage.getItem(scoped(EVENTS_KEY))) write(EVENTS_KEY,events); },
   getOrders:()=>read<OrderRecord[]>(ORDERS_KEY,orders),
   getCustomers:()=>read<CustomerRecord[]>(CUSTOMERS_KEY,customers),
   getEmployees:()=>read<EmployeeRecord[]>(EMPLOYEES_KEY,employees),
@@ -72,10 +77,12 @@ export const crmData = {
   saveOrders:(value:OrderRecord[])=>write(ORDERS_KEY,value),
   saveCustomers:(value:CustomerRecord[])=>write(CUSTOMERS_KEY,value),
   saveEmployees:(value:EmployeeRecord[])=>write(EMPLOYEES_KEY,value),
+  getSettings:()=>read<WorkspaceSettings>(SETTINGS_KEY,{company:authService.getSession()?.company||"ServiceFlow",email:authService.getSession()?.email||"",phone:"+998 71 205 44 11",timezone:"Asia/Tashkent",address:"Ташкент, ул. Шота Руставели, 12",sms:true,overdueReminders:true}),
+  saveSettings:(value:WorkspaceSettings)=>write(SETTINGS_KEY,value),
   addEvent:emitEvent,
   subscribe(callback:()=>void){ if(typeof window==="undefined") return()=>undefined; window.addEventListener(DATA_EVENT,callback); window.addEventListener("storage",callback); return()=>{window.removeEventListener(DATA_EVENT,callback);window.removeEventListener("storage",callback)}; },
 };
 
 export const orderStatuses: OrderStatus[] = ["Новые","Диагностика","Согласование","В работе","Готово","Выдано"];
 export const formatMoney = (value:number) => new Intl.NumberFormat("ru-RU").format(value)+" сум";
-
+export function employeeLoad(employeeId:string, ordersList:OrderRecord[]){const active=ordersList.filter(order=>order.employeeId===employeeId&&order.status!=="Выдано").length;return Math.max(0,Math.min(100,Math.round(active/6*100)))}

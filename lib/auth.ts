@@ -18,7 +18,10 @@ function browserReady() {
 
 function readUsers(): StoredUser[] {
   if (!browserReady()) return [];
-  try { return JSON.parse(localStorage.getItem(USERS_KEY) || "[]") as StoredUser[]; }
+  try {
+    const value = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+    return Array.isArray(value) ? value.filter((user): user is StoredUser => Boolean(user && typeof user.id === "string" && typeof user.email === "string" && typeof user.passwordHash === "string")) : [];
+  }
   catch { return []; }
 }
 
@@ -56,6 +59,15 @@ export const authService = {
     return sessionUser;
   },
 
+  async resetPassword(emailValue: string, password: string) {
+    const email = emailValue.trim().toLowerCase();
+    const users = readUsers();
+    const index = users.findIndex(user => user.email === email);
+    if (index < 0) throw new Error("Аккаунт с таким email не найден");
+    users[index] = { ...users[index], passwordHash: await digest(password) };
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  },
+
   async login(emailValue: string, password: string, remember = true) {
     const email = emailValue.trim().toLowerCase();
     const user = readUsers().find(candidate => candidate.email === email);
@@ -77,12 +89,31 @@ export const authService = {
     if (!browserReady()) return null;
     const raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
     if (!raw) return null;
-    try { return JSON.parse(raw) as ServiceFlowUser; }
-    catch { return null; }
+    try {
+      const value = JSON.parse(raw) as Partial<ServiceFlowUser>;
+      if (!value || typeof value.id !== "string" || typeof value.name !== "string" || typeof value.company !== "string" || typeof value.email !== "string") throw new Error("invalid session");
+      return value as ServiceFlowUser;
+    } catch {
+      localStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      return null;
+    }
   },
 
   hasAccount(emailValue: string) {
     return readUsers().some(user => user.email === emailValue.trim().toLowerCase());
+  },
+
+  updateProfile(patch: Pick<ServiceFlowUser, "company" | "email">) {
+    const session = this.getSession();
+    if (!session) return null;
+    const email = patch.email.trim().toLowerCase();
+    const users = readUsers();
+    if (users.some(user => user.id !== session.id && user.email === email)) throw new Error("Этот email уже используется другим аккаунтом");
+    const next = { ...session, company: patch.company.trim(), email };
+    localStorage.setItem(USERS_KEY, JSON.stringify(users.map(user => user.id === session.id ? { ...user, company: next.company, email: next.email } : user)));
+    persistSession(next, Boolean(localStorage.getItem(SESSION_KEY)));
+    return next;
   },
 
   subscribe(callback: () => void) {
@@ -92,4 +123,3 @@ export const authService = {
     return () => { window.removeEventListener(AUTH_EVENT, callback); window.removeEventListener("storage", callback); };
   },
 };
-

@@ -19,7 +19,7 @@ const nav = [
 
 export function CrmShell({title,eyebrow,actions,children}:{title:string;eyebrow:string;actions?:React.ReactNode;children:React.ReactNode}) {
   const router=useRouter(); const pathname=usePathname();
-  const [user,setUser]=useState<ServiceFlowUser|null>(null); const [ready,setReady]=useState(false); const [mobile,setMobile]=useState(false);
+  const [user,setUser]=useState<ServiceFlowUser|null>(null); const [ready,setReady]=useState(false); const [mobile,setMobile]=useState(false);const [notifications,setNotifications]=useState(false);
   useEffect(()=>{
     const session=authService.getSession();
     if(!session){ router.replace(`/login?next=${encodeURIComponent(pathname)}`); return; }
@@ -39,7 +39,7 @@ export function CrmShell({title,eyebrow,actions,children}:{title:string;eyebrow:
     </aside>
     {mobile&&<button className="sidebar-scrim" aria-label="Закрыть меню" onClick={()=>setMobile(false)}/>} 
     <section className="crm-content">
-      <header className="crm-topbar"><button className="crm-menu" onClick={()=>setMobile(true)} aria-label="Открыть меню"><Menu/></button><div><span className="technical">{`// ${eyebrow}`}</span><h1>{title}</h1></div><div className="crm-top-actions">{actions}<button className="icon-button" aria-label="Уведомления"><Bell/><b>3</b></button><span className="top-avatar">{initials}</span></div></header>
+      <header className="crm-topbar"><button className="crm-menu" onClick={()=>setMobile(true)} aria-label="Открыть меню"><Menu/></button><div><span className="technical">{`// ${eyebrow}`}</span><h1>{title}</h1></div><div className="crm-top-actions">{actions}<button className="icon-button" aria-label="Уведомления" aria-expanded={notifications} onClick={()=>setNotifications(value=>!value)}><Bell/><b>{Math.min(3,crmData.getEvents().length)}</b></button><span className="top-avatar">{initials}</span></div>{notifications&&<div className="notification-popover"><header><b>Последние уведомления</b><button onClick={()=>setNotifications(false)} aria-label="Закрыть уведомления"><X/></button></header>{crmData.getEvents().slice(0,3).map(event=><div key={event.id}><i className={event.tone}/><span><b>{event.title}</b><small>{event.detail}</small></span><time>{event.time}</time></div>)}</div>}</header>
       <div className="crm-canvas">{children}</div>
     </section>
   </main>;

@@ -61,10 +61,10 @@ export default function Home() {
     <header className="site-header">
       <a className="brand" href="#top"><span className="brand-mark"><Command size={17}/></span>ServiceFlow</a>
       <nav className={mobileNav ? "nav open" : "nav"}>
-        <a href="#platform">Платформа</a><a href="#workflow">Процессы</a><a href="#product">Интерфейс</a><a href="#contact">Контакты</a>
+        <a onClick={()=>setMobileNav(false)} href="#platform">Платформа</a><a onClick={()=>setMobileNav(false)} href="#workflow">Процессы</a><a onClick={()=>setMobileNav(false)} href="#product">Интерфейс</a><a onClick={()=>setMobileNav(false)} href="#contact">Контакты</a>
       </nav>
       <div className="header-actions"><button className="ghost-button" onClick={()=>router.push("/login")}>Войти</button><button className="primary-button small" onClick={()=>router.push("/register")}>Попробовать <ArrowRight size={15}/></button></div>
-      <button className="menu-button" aria-label="Меню" onClick={()=>setMobileNav(!mobileNav)}>{mobileNav?<X/>:<Menu/>}</button>
+      <button className="menu-button" aria-label={mobileNav?"Закрыть меню":"Открыть меню"} aria-expanded={mobileNav} onClick={()=>setMobileNav(!mobileNav)}>{mobileNav?<X/>:<Menu/>}</button>
     </header>
 
     <section className="hero" id="top">
@@ -107,7 +107,7 @@ export default function Home() {
       </aside>
       <section className="app-main">
         <div className="app-toolbar"><div><span className="technical">{`// NOVA-SERVICE / ${view.toUpperCase()}`}</span><h3>{view}</h3></div><div className="toolbar-actions"><label className="search"><Search size={15}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Поиск…"/></label><button className="icon-button"><Bell size={17}/><b>3</b></button><button className="primary-button small" onClick={()=>setNewOrder(true)}><Plus size={15}/> Новая заявка</button></div></div>
-        {view === "Дашборд" && <Dashboard orders={orders} onOrder={setSelected} onNew={()=>setNewOrder(true)} onGo={setView}/>} 
+        {view === "Дашборд" && <Dashboard orders={orders} onOrder={setSelected} onNew={()=>setNewOrder(true)} onGo={setView} notify={notify}/>}
         {view === "Заявки" && <Requests orders={filtered} search={search} setSearch={setSearch} status={status} setStatus={setStatus} mode={requestMode} setMode={setRequestMode} onOrder={setSelected} onMove={moveOrder}/>} 
         {view === "Клиенты" && <Clients/>}
         {view === "Мастера" && <Masters/>}
@@ -134,7 +134,7 @@ export default function Home() {
   </main>;
 }
 
-function Dashboard({orders,onOrder,onNew,onGo}:{orders:Order[];onOrder:(o:Order)=>void;onNew:()=>void;onGo:(v:string)=>void}) {
+function Dashboard({orders,onOrder,onNew,onGo,notify}:{orders:Order[];onOrder:(o:Order)=>void;onNew:()=>void;onGo:(v:string)=>void;notify:(message:string)=>void}) {
   return <div className="dashboard-grid">
     <div className="kpi-row">
       <Kpi label="Открытые заявки" value="24" meta="+3 сегодня" tone="cyan"/><Kpi label="Срочные / просрочены" value="4 / 2" meta="Требуют внимания" tone="orange"/><Kpi label="Выручка сегодня" value="18,4 млн" meta="+12,8% к неделе" tone="green"/><Kpi label="Средний срок" value="2,8 дня" meta="−0,4 дня" tone="magenta"/>
@@ -142,7 +142,7 @@ function Dashboard({orders,onOrder,onNew,onGo}:{orders:Order[];onOrder:(o:Order)
     <article className="dash-board panel"><PanelHead label="LIVE QUEUE" title="Заявки в работе" icon={<Wrench size={16}/>} action={<button onClick={()=>onGo("Заявки")}>Открыть доску <ArrowRight/></button>}/><MiniBoard orders={orders} onOrder={onOrder}/></article>
     <article className="dash-load panel"><PanelHead label="TEAM" title="Загрузка мастеров" icon={<Gauge size={16}/>}/><LoadBars/></article>
     <article className="dash-events panel"><PanelHead label="STREAM" title="Последние события" icon={<Activity size={16}/>}/><EventFeed/></article>
-    <article className="quick-panel panel"><PanelHead label="COMMANDS" title="Быстрые действия" icon={<Command size={16}/>}/><div className="quick-actions"><button onClick={onNew}><Plus/>Новая заявка</button><button><CalendarClock/>Запланировать</button><button><Users/>Найти клиента</button><button><FileText/>Сформировать акт</button></div></article>
+    <article className="quick-panel panel"><PanelHead label="COMMANDS" title="Быстрые действия" icon={<Command size={16}/>}/><div className="quick-actions"><button onClick={onNew}><Plus/>Новая заявка</button><button onClick={()=>notify("Планирование открыто на сегодня")}><CalendarClock/>Запланировать</button><button onClick={()=>onGo("Клиенты")}><Users/>Найти клиента</button><button onClick={()=>notify("Акт сформирован и готов к печати")}><FileText/>Сформировать акт</button></div></article>
   </div>
 }
 
@@ -159,7 +159,7 @@ function Masters(){ return <div className="entity-view"><div className="entity-h
 function Automations({notify}:{notify:(s:string)=>void}){ const [enabled,setEnabled]=useState([true,true,true,false]); const rows=[["Новая заявка","Назначить очередь и уведомить администратора","142 запуска"],["Заказ просрочен","Напомнить мастеру и отметить как срочный","8 запусков"],["Ремонт готов","Отправить клиенту SMS со ссылкой на оплату","37 запусков"],["Повторный визит","Запросить отзыв через 3 дня после выдачи","—"]]; return <div className="entity-view"><div className="entity-hero"><div><span className="technical magenta">{"// AUTOMATION ENGINE"}</span><h3>Автоматизации</h3><p>Правила, триггеры и журнал каждого выполнения.</p></div><div className="entity-metric"><span>Успешно за 7 дней</span><b>98,7%</b><small className="green">187 из 190</small></div></div><div className="automation-list">{rows.map((r,i)=><article key={r[0]}><span className={`automation-icon ${enabled[i]?"on":""}`}><Bot/></span><div><b>{r[0]}</b><small>{r[1]}</small></div><span className="mono run-count">{r[2]}</span><button className={`switch ${enabled[i]?"on":""}`} aria-label={`Переключить ${r[0]}`} onClick={()=>{setEnabled(v=>v.map((x,j)=>j===i?!x:x));notify(enabled[i]?"Автоматизация остановлена":"Автоматизация включена")}}><i/></button></article>)}</div><div className="run-log"><span className="technical">{"// EXECUTION LOG"}</span>{[["17:41:08","SF-1033","SMS доставлено","success"],["17:36:22","SF-1039","Статус изменён: В работе","success"],["17:31:04","SF-1037","Ошибка доставки уведомления","error"]].map(x=><div key={x[0]}><span className="mono">{x[0]}</span><b className="mono">{x[1]}</b><span>{x[2]}</span><em className={x[3]}>{x[3]==="success"?"OK":"ERROR"}</em></div>)}</div></div> }
 
 function Kpi({label,value,meta,tone}:{label:string;value:string;meta:string;tone:string}) { return <article className={`kpi ${tone}`}><span>{label}</span><b>{value}</b><small>{meta}</small></article> }
-function PanelHead({label,title,icon,action}:{label:string;title:string;icon:React.ReactNode;action?:React.ReactNode}) { return <header className="panel-head"><div><span className="technical">{`// ${label}`}</span><h4>{icon}{title}</h4></div>{action||<button className="more"><MoreHorizontal/></button>}</header> }
+function PanelHead({label,title,icon,action}:{label:string;title:string;icon:React.ReactNode;action?:React.ReactNode}) { return <header className="panel-head"><div><span className="technical">{`// ${label}`}</span><h4>{icon}{title}</h4></div>{action||<span className="more" aria-hidden="true"><MoreHorizontal/></span>}</header> }
 function MiniBoard({orders=initialOrders,onOrder}:{orders?:Order[];onOrder?:(o:Order)=>void}) { return <div className="mini-board">{["Новые","В работе","Готовы"].map(stage=><div key={stage}><header><span>{stage}</span><b>{orders.filter(o=>o.stage===stage).length}</b></header>{orders.filter(o=>o.stage===stage).slice(0,2).map(o=><button key={o.id} onClick={()=>onOrder?.(o)}><span className="mono">{o.id}</span><b>{o.device}</b><small>{o.issue}</small><footer><span>{o.master}</span><strong>{money(o.price)}</strong></footer></button>)}</div>)}</div> }
 function LoadBars(){ return <div className="load-bars">{[["Алексей",82,6],["Мария",94,7],["Тимур",61,4],["Илья",38,2]].map(([n,p,c])=><div key={String(n)}><span className="avatar mini">{String(n).slice(0,1)}</span><span><b>{n}</b><small>{c} активных</small></span><div className="bar"><i style={{width:`${p}%`}}/></div><strong>{p}%</strong></div>)}</div> }
 function EventFeed({compact=false}:{compact?:boolean}) { const items=[["17:41","SF-1033 готов к выдаче","Клиенту отправлено SMS","green"],["17:36","SF-1039 взят в работу","Мария · пост 04","cyan"],["17:31","SF-1041 согласован","Оплата подтверждена","magenta"],["17:18","SF-1048 создан","Онлайн-форма","orange"]]; return <div className="event-feed">{items.slice(0,compact?4:3).map(x=><div key={x[0]}><i className={x[3]}/><span className="mono">{x[0]}</span><span><b>{x[1]}</b><small>{x[2]}</small></span></div>)}</div> }
