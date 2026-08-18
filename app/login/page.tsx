@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, Eye, EyeOff, LoaderCircle } from "lucide-react";
@@ -17,9 +16,9 @@ export default function LoginPage(){
       {error&&<div className="form-error" role="alert">{error}</div>}
       <label>Email<input name="email" type="email" autoComplete="email" placeholder="you@company.uz" required/></label>
       <label>Пароль<span className="password-field"><input name="password" type={show?"text":"password"} autoComplete="current-password" placeholder="Ваш пароль" required/><button type="button" onClick={()=>setShow(!show)} aria-label={show?"Скрыть пароль":"Показать пароль"}>{show?<EyeOff/>:<Eye/>}</button></span></label>
-      <div className="auth-options"><label className="checkbox-line"><input name="remember" type="checkbox" defaultChecked/><span><i><Check/></i>Запомнить меня</span></label><Link href="/forgot-password">Забыли пароль?</Link></div>
+      <div className="auth-options"><label className="checkbox-line"><input name="remember" type="checkbox" defaultChecked/><span><i><Check/></i>Запомнить меня</span></label><a href="/forgot-password">Забыли пароль?</a></div>
       <button className="primary-button auth-submit" disabled={loading}>{loading?<><LoaderCircle className="spin"/>Проверяем…</>:<>Войти <ArrowRight/></>}</button>
     </form>
-    <p className="auth-switch">Нет аккаунта? <Link href="/register">Создать бесплатно</Link></p>
+    <p className="auth-switch">Нет аккаунта? <a href="/register">Создать бесплатно</a></p>
   </AuthLayout>
 }

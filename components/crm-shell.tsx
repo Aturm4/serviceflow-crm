@@ -1,7 +1,6 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Activity, BarChart3, Bell, ChevronDown, Command, Gauge, LayoutDashboard, LogOut, Menu, Settings2, Users, Wrench, X } from "lucide-react";
@@ -32,9 +31,9 @@ export function CrmShell({title,eyebrow,actions,children}:{title:string;eyebrow:
   return <main className="crm-page">
     <div className="scanlines" aria-hidden="true"/>
     <aside className={`crm-sidebar ${mobile?"open":""}`}>
-      <div className="crm-logo"><Link className="brand" href="/"><span className="brand-mark"><Command size={16}/></span>ServiceFlow <small>CRM</small></Link><button onClick={()=>setMobile(false)} aria-label="Закрыть меню"><X/></button></div>
+      <div className="crm-logo"><a className="brand" href="/"><span className="brand-mark"><Command size={16}/></span>ServiceFlow <small>CRM</small></a><button onClick={()=>setMobile(false)} aria-label="Закрыть меню"><X/></button></div>
       <div className="crm-workspace"><span className="avatar cyan-bg">{user.company.slice(0,2).toUpperCase()}</span><span><b>{user.company}</b><small>Рабочее пространство</small></span><ChevronDown/></div>
-      <nav>{nav.map(([href,label,Icon])=><Link key={href} className={pathname===href?"active":""} href={href} onClick={()=>setMobile(false)}><Icon/>{label}{href==="/orders"&&<b>{crmData.getOrders().filter(o=>o.status!=="Выдано").length}</b>}</Link>)}</nav>
+      <nav>{nav.map(([href,label,Icon])=><a key={href} className={pathname===href?"active":""} href={href} onClick={()=>setMobile(false)}><Icon/>{label}{href==="/orders"&&<b>{crmData.getOrders().filter(o=>o.status!=="Выдано").length}</b>}</a>)}</nav>
       <div className="crm-side-bottom"><div className="system-health"><Activity/><span><b>Системы работают</b><small>Последняя синхронизация: сейчас</small></span></div><div className="crm-profile"><span className="avatar cyan-bg">{initials}</span><span><b>{user.name}</b><small>{user.email}</small></span><button onClick={logout} aria-label="Выйти"><LogOut/></button></div></div>
     </aside>
     {mobile&&<button className="sidebar-scrim" aria-label="Закрыть меню" onClick={()=>setMobile(false)}/>} 

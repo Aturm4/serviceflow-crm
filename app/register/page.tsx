@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, Eye, EyeOff, LoaderCircle } from "lucide-react";
@@ -29,9 +28,9 @@ export default function RegisterPage(){
       <div className="form-row"><label>Ваше имя<input name="name" maxLength={100} autoComplete="name" placeholder="Саид Каримов" required/></label><label>Компания<input name="company" maxLength={120} autoComplete="organization" placeholder="Nova Service" required/></label></div>
       <label>Email<input name="email" type="email" maxLength={160} autoComplete="email" placeholder="you@company.uz" required/></label>
       <div className="form-row"><label>Пароль<span className="password-field"><input name="password" maxLength={128} type={show?"text":"password"} autoComplete="new-password" placeholder="Минимум 8 символов" required/><button type="button" onClick={()=>setShow(!show)} aria-label={show?"Скрыть пароль":"Показать пароль"}>{show?<EyeOff/>:<Eye/>}</button></span></label><label>Повтор пароля<input name="confirm" maxLength={128} type={show?"text":"password"} autoComplete="new-password" placeholder="Повторите пароль" required/></label></div>
-      <label className="checkbox-line"><input name="terms" type="checkbox"/><span><i><Check/></i>Я принимаю <Link href="/terms">условия использования и политику конфиденциальности</Link></span></label>
+      <label className="checkbox-line"><input name="terms" type="checkbox"/><span><i><Check/></i>Я принимаю <a href="/terms">условия использования и политику конфиденциальности</a></span></label>
       <button className="primary-button auth-submit" disabled={loading}>{loading?<><LoaderCircle className="spin"/>Создаём пространство…</>:<>Создать аккаунт <ArrowRight/></>}</button>
     </form>
-    <p className="auth-switch">Уже есть аккаунт? <Link href="/login">Войти</Link></p>
+    <p className="auth-switch">Уже есть аккаунт? <a href="/login">Войти</a></p>
   </AuthLayout>
 }

@@ -1,12 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { Command, ShieldCheck } from "lucide-react";
 
 export function AuthLayout({ children, eyebrow, title, description }:{ children:React.ReactNode; eyebrow:string; title:string; description:string }) {
   return <main className="auth-page">
     <div className="ambient" aria-hidden="true"><i/><i/><i/></div><div className="scanlines" aria-hidden="true"/>
-    <Link className="brand auth-brand" href="/"><span className="brand-mark"><Command size={17}/></span>ServiceFlow</Link>
+    <a className="brand auth-brand" href="/"><span className="brand-mark"><Command size={17}/></span>ServiceFlow</a>
     <section className="auth-stage">
       <div className="auth-context">
         <span className="technical cyan">{"// SERVICEFLOW ACCESS"}</span>
@@ -22,4 +21,3 @@ export function AuthLayout({ children, eyebrow, title, description }:{ children:
     <footer className="auth-footer"><span>ServiceFlow CRM</span><span className="mono">SECURE DEMO SESSION / 2026</span></footer>
   </main>;
 }
-
