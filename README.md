@@ -1,8 +1,22 @@
-# vinext-starter
+# ServiceFlow CRM
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+Интерактивная CRM для сервисного центра: заявки, клиенты, сотрудники, Kanban-процесс ремонта и аналитика в одном адаптивном интерфейсе.
+
+**Live demo:** https://serviceflow-crm.atumovichatuma.chatgpt.site
+
+## Что реализовано
+
+- регистрация и demo-auth с локальным хранением;
+- dashboard с ключевыми показателями и загрузкой команды;
+- Kanban заказов с drag-and-drop, поиском и фильтрами;
+- карточки клиентов, устройств и истории обращений;
+- управление сотрудниками и назначением исполнителей;
+- аналитика выручки, статусов и популярных услуг;
+- адаптивный интерфейс для компьютера и телефона.
+
+## Стек
+
+`React 19` · `TypeScript` · `vinext` · `Cloudflare Workers` · `Lucide React`
 
 ## Prerequisites
 
@@ -18,14 +32,13 @@ npm run build
 
 This starter does not use `wrangler.jsonc`.
 
-## Included Shape
+## Архитектура
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+- страницы продукта находятся в `app/`;
+- общая оболочка CRM — в `components/crm-shell.tsx`;
+- demo-auth и локальные данные изолированы в `lib/`;
+- Worker-entrypoint и конфигурация сборки готовы к Cloudflare runtime;
+- проект не содержит реальных клиентских данных: все записи демонстрационные.
 
 ## Workspace Auth Headers
 
