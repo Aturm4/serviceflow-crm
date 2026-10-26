@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { safeReturnPath } from "@/lib/return-path";
 
 export type ChatGPTUser = {
   userId: string;
@@ -59,15 +60,7 @@ export function chatGPTSignOutPath(returnTo = "/"): string {
 }
 
 function safeRelativeReturnPath(value: string): string {
-  if (!value.startsWith("/") || value.startsWith("//")) return "/";
-
-  let url: URL;
-  try {
-    url = new URL(value, "https://app.local");
-  } catch {
-    return "/";
-  }
-  if (url.origin !== "https://app.local") return "/";
+  const url = new URL(safeReturnPath(value, "/"), "https://app.local");
   if (isReservedAuthPath(url.pathname)) return "/";
 
   return `${url.pathname}${url.search}${url.hash}`;

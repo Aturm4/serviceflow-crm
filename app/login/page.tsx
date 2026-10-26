@@ -6,11 +6,12 @@ import { ArrowRight, Check, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { AuthLayout } from "@/components/auth-layout";
 import { authService } from "@/lib/auth";
 import { crmData } from "@/lib/crm-data";
+import { safeReturnPath } from "@/lib/return-path";
 
 export default function LoginPage(){
   const params=useSearchParams(); const [show,setShow]=useState(false),[loading,setLoading]=useState(false),[error,setError]=useState("");const submitting=useRef(false);
   useEffect(()=>{if(authService.getSession()) window.location.replace("/dashboard")},[]);
-  async function submit(event:React.FormEvent<HTMLFormElement>){event.preventDefault();if(submitting.current)return;submitting.current=true;setError("");setLoading(true);const data=new FormData(event.currentTarget);try{await authService.login(String(data.get("email")),String(data.get("password")),Boolean(data.get("remember")));crmData.seed();const next=params.get("next");window.location.replace(next?.startsWith("/")&&!next.startsWith("//")?next:"/dashboard")}catch(reason){setError(reason instanceof Error?reason.message:"Не удалось войти");submitting.current=false;setLoading(false)}}
+  async function submit(event:React.FormEvent<HTMLFormElement>){event.preventDefault();if(submitting.current)return;submitting.current=true;setError("");setLoading(true);const data=new FormData(event.currentTarget);try{await authService.login(String(data.get("email")),String(data.get("password")),Boolean(data.get("remember")));crmData.seed();window.location.replace(safeReturnPath(params.get("next")))}catch(reason){setError(reason instanceof Error?reason.message:"Не удалось войти");submitting.current=false;setLoading(false)}}
   return <AuthLayout eyebrow="WELCOME BACK" title="Вход в ServiceFlow" description="Продолжите работу с заказами и командой.">
     <form className="auth-form" onSubmit={submit}>
       {error&&<div className="form-error" role="alert">{error}</div>}
